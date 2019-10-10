@@ -53,13 +53,12 @@ public class Client {
             @Override
             public void actionPerformed(ActionEvent e) {
                 undoStarted = true;
-                Driver.client.con.restoreState();                
+                Driver.client.con.undo();                
                 undoStarted = false;
             }            
         });
         frame.add(undoButton);
-        frame.add(sp);
-        System.out.println("after get TAble ------>>>");
+        frame.add(sp);        
         
                 
 

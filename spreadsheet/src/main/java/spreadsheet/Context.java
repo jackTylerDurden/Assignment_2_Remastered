@@ -4,29 +4,32 @@ public class Context {
     LinkedHashMap<String,Cell> values = new LinkedHashMap<String,Cell>();    
     LinkedHashMap<String,String> colIndexToExpressionMap = new LinkedHashMap<String,String>();
     Set<String> dependentCellsSet = new HashSet<String>();
+
+    // Equation View undo functionality
     Caretaker caretakerForEquationView = new Caretaker();
     Originator originatorForEquationView = new Originator();
-    Caretaker caretakerForValueView;
-    Originator originatorForValueView;
     int currentCellStateForEquationView = -1;
+
+    // Value View undo functionality
+    Caretaker caretakerForValueView;    
+    Originator originatorForValueView;
     int currentCellStateForValueView = 0;
 
     public String getValue(String key){        
         if(values.get(key) == null){
-            Cell cell = new Cell("");            
-            // saveState();
+            Cell cell = new Cell("");                        
             values.put(key,cell);
         }            
         return values.get(key).getCellValue();
     }
 
-    public void setValue(String key,String value){        
+    public void setValue(String key,String value){       
         Cell cellToAssign = values.get(key); 
         if(cellToAssign == null){
             cellToAssign = new Cell("");            
         }                  
         values.put(key,cellToAssign);
-        cellToAssign.setCellValue(value,Integer.valueOf(key));
+        cellToAssign.setCellValue(value,Integer.valueOf(key));       
         if(!Driver.client.undoStarted && !cellToAssign.isObserver){
             saveState();
         }        
@@ -50,11 +53,11 @@ public class Context {
                 contextStateMap.put(String.valueOf(i),"");
             }
         }       
-        if(Driver.client.isValueView){
+        if(Driver.client.isValueView ){
             Driver.client.con.originatorForValueView.set(contextStateMap);
             Driver.client.con.caretakerForValueView.addMemento(Driver.client.con.originatorForValueView.storeInMemento());            
             Driver.client.con.currentCellStateForValueView++;
-        }else if(!Driver.client.isValueView && !Driver.client.isToggled){
+        }else if(!Driver.client.isValueView && !Driver.client.isToggled ){
             Driver.client.con.originatorForEquationView.set(contextStateMap);
             Driver.client.con.caretakerForEquationView.addMemento(Driver.client.con.originatorForEquationView.storeInMemento());            
             Driver.client.con.currentCellStateForEquationView++;
@@ -62,7 +65,7 @@ public class Context {
 
     }
 
-    public void restoreState(){                        
+    public void undo(){
             LinkedHashMap<String,String> contextAfterUndo = new LinkedHashMap<>();
             Boolean performUndo = false;
             if(Driver.client.isValueView){

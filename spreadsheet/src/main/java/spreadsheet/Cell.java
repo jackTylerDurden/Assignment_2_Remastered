@@ -1,6 +1,6 @@
 package spreadsheet;
 import java.util.*;
-public class Cell{
+public class Cell implements Subject,Observer{
     String value="";
     int colIndex;
     Boolean isObserver;
@@ -10,22 +10,17 @@ public class Cell{
         value = val;
         observerList = new HashSet<Cell>();
         isObserver = false;
-    }
-
+    }    
     public void notifyObserver(){        
         for(Cell observer : observerList){            
             observer.update();
         }
     }
-
+    
     public void register(Cell observer){
         observerList.add(observer);        
     }
-
-    public void unregister(Cell observer){
-        observerList.remove(observer);        
-    }
-
+    
     public void update(){
         value = Driver.client.con.colIndexToExpressionMap.get(String.valueOf(colIndex));        
         Driver.client.con.dependentCellsSet = new HashSet<String>();
@@ -63,7 +58,7 @@ public class Cell{
                 return String.join(" ", resultList);
             }            
             if(Driver.client.con.dependentCellsSet.contains(String.valueOf(this.colIndex))){
-                return Expression.ERROR_MESSAGE;
+                return Expression.ERROR_MESSAGE; //Circular Dependency
             }else{
                 Driver.client.con.dependentCellsSet.add(String.valueOf(this.colIndex));
             }
