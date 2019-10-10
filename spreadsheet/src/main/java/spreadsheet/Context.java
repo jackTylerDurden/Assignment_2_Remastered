@@ -6,10 +6,10 @@ public class Context {
     Set<String> dependentCellsSet = new HashSet<String>();
     Caretaker caretakerForEquationView = new Caretaker();
     Originator originatorForEquationView = new Originator();
-    Caretaker caretakerForValueView;//= new Caretaker();
-    Originator originatorForValueView;// = new Originator();    
+    Caretaker caretakerForValueView;
+    Originator originatorForValueView;
     int currentCellStateForEquationView = -1;
-    int currentCellStateForValueView = -1;
+    int currentCellStateForValueView = 0;
 
     public String getValue(String key){        
         if(values.get(key) == null){
@@ -64,31 +64,34 @@ public class Context {
 
     public void restoreState(){                        
             LinkedHashMap<String,String> contextAfterUndo = new LinkedHashMap<>();
+            Boolean performUndo = false;
             if(Driver.client.isValueView){
                 if(Driver.client.con.currentCellStateForValueView >= 1){
+                    performUndo = true;
                     Driver.client.con.currentCellStateForValueView--;
                     contextAfterUndo = Driver.client.con.originatorForValueView.restoreFromMemento(Driver.client.con.caretakerForValueView.fetchMemento(Driver.client.con.currentCellStateForValueView));    
                 }
             }else{
                 if(Driver.client.con.currentCellStateForEquationView >= 1){
+                    performUndo = true;
                     Driver.client.con.currentCellStateForEquationView--;
                     contextAfterUndo = Driver.client.con.originatorForEquationView.restoreFromMemento(Driver.client.con.caretakerForEquationView.fetchMemento(Driver.client.con.currentCellStateForEquationView));
                 }
             }
-            
-            for(String cellKey : Driver.client.con.values.keySet()){                
-                String pastCellVal = contextAfterUndo.get(cellKey);
-                if(pastCellVal == null)
-                    pastCellVal = "";
-                Cell presentCell = Driver.client.con.values.get(cellKey);
-                if(!Driver.client.isValueView && !pastCellVal.equals(presentCell.value)){ //differnetial update
-                    //presentCell.setCellValue(pastCellVal, Integer.valueOf(cellKey));
-                    Driver.client.dataModel.setValueAt(pastCellVal, 0, Integer.valueOf(cellKey));
-                }else if(Driver.client.isValueView && !presentCell.isObserver && !pastCellVal.equals(presentCell.value)){
-                    //presentCell.setCellValue(pastCellVal, Integer.valueOf(cellKey));
-                    Driver.client.dataModel.setValueAt(pastCellVal, 0, Integer.valueOf(cellKey));
+            if(performUndo){
+                for(String cellKey : Driver.client.con.values.keySet()){                
+                    String pastCellVal = contextAfterUndo.get(cellKey);
+                    if(pastCellVal == null)
+                        pastCellVal = "";
+                    Cell presentCell = Driver.client.con.values.get(cellKey);
+                    if(!Driver.client.isValueView && !pastCellVal.equals(presentCell.value)){ //differnetial update        
+                        Driver.client.dataModel.setValueAt(pastCellVal, 0, Integer.valueOf(cellKey));
+                    }else if(Driver.client.isValueView && !presentCell.isObserver && !pastCellVal.equals(presentCell.value)){
+                        Driver.client.dataModel.setValueAt(pastCellVal, 0, Integer.valueOf(cellKey));
+                    }
                 }
             }
+            
         
     }
     
