@@ -54,7 +54,7 @@ public class Context {
             Driver.client.con.originatorForValueView.set(contextStateMap);
             Driver.client.con.caretakerForValueView.addMemento(Driver.client.con.originatorForValueView.storeInMemento());            
             Driver.client.con.currentCellStateForValueView++;
-        }else if(!Driver.client.isValueView){
+        }else if(!Driver.client.isValueView && !Driver.client.isToggled){
             Driver.client.con.originatorForEquationView.set(contextStateMap);
             Driver.client.con.caretakerForEquationView.addMemento(Driver.client.con.originatorForEquationView.storeInMemento());            
             Driver.client.con.currentCellStateForEquationView++;
